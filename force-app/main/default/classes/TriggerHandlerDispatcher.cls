@@ -10,11 +10,13 @@ public class TriggerHandlerDispatcher {
     private static Set<Id> hasBeenRunBefore = new Set<Id>();
 
     public static void run(TriggerHandler handler) {
-        if (!Trigger.isExecuting) {
+        if (!Trigger.isExecuting && !Test.isRunningTest()) {
             throw new TriggerHandlerDispatcherException('Trigger handler called outside of Trigger execution');
         }
 
-        List<sObject> applicableSObjectsList = recursionChecker(Trigger.isDelete || Trigger.isUndelete ? Trigger.old : Trigger.new);
+        List<sObject> applicableSObjectsList = Test.isRunningTest() ? 
+                                                    new List<sObject>() : 
+                                                    recursionChecker(Trigger.isDelete || Trigger.isUndelete ? Trigger.old : Trigger.new);
         if (!applicableSObjectsList.isEmpty()) {
             runEvents(handler, applicableSObjectsList);
         }

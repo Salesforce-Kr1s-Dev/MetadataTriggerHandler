@@ -61,17 +61,11 @@ private class MetadataTriggerManagerTest {
     }
 
     @isTest
-    private static void testExecuteHandlerOutSideTriggerContext() {
-        String errMessage;
+    private static void testExecuteHandler() {
         MetadataTriggerManager mdt = new MetadataTriggerManager();
         Test.startTest();
-            try {
-                mdt.executeHandler(HANDLER);
-            } catch (Exception ex) {
-                errMessage = ex.getMessage();
-            }
+            mdt.executeHandler(Type.forName(MOCK_TRIGGER_HANDLER_CLASS));
         Test.stopTest();
-        System.assertEquals(NOT_IN_TRIGGER_CONTEXT, errMessage, 'Successfully executed trigger handlers');
     }
 
     public class TriggerHandlerMock extends TriggerHandler {}
