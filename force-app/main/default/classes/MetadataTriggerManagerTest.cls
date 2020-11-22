@@ -31,6 +31,26 @@ private class MetadataTriggerManagerTest {
     }
 
     @isTest
+    private static void testconstructApexTypeExistingClass() {
+        Type apexType;
+        Test.startTest();
+            MetadataTriggerManager mdt = new MetadataTriggerManager();
+            apexType = mdt.constructApexType(MOCK_TRIGGER_HANDLER_CLASS);
+        Test.stopTest();
+        System.assert(apexType != null, 'Failed to create apex type');
+    }
+
+    @isTest
+    private static void testconstructApexTypeNonExistingClass() {
+        Type apexType;
+        Test.startTest();
+            MetadataTriggerManager mdt = new MetadataTriggerManager();
+            apexType = mdt.constructApexType('MockClass' + Datetime.now().getTime());
+        Test.stopTest();
+        System.assert(apexType == null, 'Successfully created apex type');
+    }
+
+    @isTest
     private static void testRunDisabledTrigger() {
         Test.startTest();
             new MetadataTriggerManager()

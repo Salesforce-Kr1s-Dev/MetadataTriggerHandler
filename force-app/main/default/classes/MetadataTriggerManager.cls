@@ -28,9 +28,8 @@ public class MetadataTriggerManager {
 
         try {
             for (Trigger_Handler__mdt metadata : this.fetchTriggerHandlers()) {
-                // Possible null pointer exception
-                Type handler = Type.forName(metadata.Class_Name__c);
-                if (this.isValid(handler)) {
+                Type handler = this.constructApexType(metadata.Class_Name__c);
+                if (handler != null && this.isValid(handler)) {
                     this.executeHandler(handler);
                 }
             }
@@ -54,6 +53,28 @@ public class MetadataTriggerManager {
                 WHERE sObjectType__c = :this.sObjectType
                 AND Is_Active__c = TRUE
                 ORDER BY Execution_Order__c];
+    }
+
+    /*********************************************************************
+     * @description                 Validate if trigger handler class is
+     *                              not included in bypass and parent class
+     *                              is TriggerHandler
+     * 
+     * @param handler               Apex type that corresponds to an Apex class 
+     * 
+     */
+    @TestVisible
+    private Type constructApexType(String className) {
+        Type apexType;
+        try {
+            apexType = Type.forName(className);
+        } catch (Exception ex) {
+            /**
+             * TODO: Class doesn't exist. Implement logging framework
+             * 
+             */
+        }
+        return apexType;
     }
 
     /*********************************************************************
