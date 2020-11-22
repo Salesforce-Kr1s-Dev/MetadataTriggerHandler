@@ -1,10 +1,12 @@
 public class MetadataTriggerManager {
+    private final String TRIGGER_OBJECT_REQUIRED = 'Must set trigger sobject';
+    private final String SOMETHING_WENT_WRONG = 'Something went wrong. Please contact administrator.';
     private Boolean isTriggerEnabled = false;
     private String sObjectType;
 
     public void run() {
         if (this.isTriggerEnabled && String.isBlank(this.sObjectType)) {
-            throw new MetadataTriggerManagerException('Must set trigger sobject');
+            throw new MetadataTriggerManagerException(this.TRIGGER_OBJECT_REQUIRED);
         }
 
         try {
@@ -19,10 +21,8 @@ public class MetadataTriggerManager {
             /**
              * TODO: Implement logging framework
              * 
-             * Do not use the generic error message label
-             * to avoid any dependencies
              */
-            throw new MetadataTriggerManagerException('Something went wrong. Please contact administrator.');
+            throw new MetadataTriggerManagerException(this.SOMETHING_WENT_WRONG);
         }
     }
 
