@@ -17,7 +17,7 @@ public class MetadataTriggerManager {
             for (Trigger_Handler__mdt metadata : this.fetchTriggerHandlers()) {
                 // Possible null pointer exception
                 Type handler = Type.forName(metadata.Class_Name__c);
-                if (this.isValid(metadata.Class_Name__c, handler)) {
+                if (this.isValid(handler)) {
                     this.executeHandler(handler);
                 }
             }
@@ -40,8 +40,8 @@ public class MetadataTriggerManager {
     }
 
     @TestVisible
-    private Boolean isValid(String className, Type handler) {
-        Boolean isBypassed = TriggerHandler.isByPassed(className);
+    private Boolean isValid(Type handler) {
+        Boolean isBypassed = TriggerHandler.isByPassed(handler.getName());
         Boolean isTriggerHandlerType = TriggerHandler.class.isAssignableFrom(handler);
         return !isBypassed && isTriggerHandlerType;
     }

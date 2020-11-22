@@ -44,7 +44,7 @@ private class MetadataTriggerManagerTest {
         Boolean isValid;
         MetadataTriggerManager mdt = new MetadataTriggerManager();
         Test.startTest();
-            isValid = mdt.isValid(MOCK_TRIGGER_HANDLER_CLASS, HANDLER);
+            isValid = mdt.isValid(HANDLER);
         Test.stopTest();
         System.assert(isValid, 'TriggerHandler class is invalid');
     }
@@ -55,7 +55,7 @@ private class MetadataTriggerManagerTest {
         MetadataTriggerManager mdt = new MetadataTriggerManager();
         TriggerHandler.byPass(MOCK_TRIGGER_HANDLER_CLASS);
         Test.startTest();
-            isValid = mdt.isValid(MOCK_TRIGGER_HANDLER_CLASS, HANDLER);
+            isValid = mdt.isValid(HANDLER);
         Test.stopTest();
         System.assert(!isValid, 'TriggerHandler class is valid');
     }
@@ -64,7 +64,7 @@ private class MetadataTriggerManagerTest {
     private static void testExecuteHandler() {
         MetadataTriggerManager mdt = new MetadataTriggerManager();
         Test.startTest();
-            mdt.executeHandler(Type.forName(MOCK_TRIGGER_HANDLER_CLASS));
+            mdt.executeHandler(HANDLER);
         Test.stopTest();
     }
 
