@@ -5,6 +5,10 @@ public class MetadataTriggerManager {
     private String sObjectType;
 
     public void run() {
+        if (!this.isTriggerEnabled) {
+            return;
+        }
+
         if (this.isTriggerEnabled && String.isBlank(this.sObjectType)) {
             throw new MetadataTriggerManagerException(this.TRIGGER_OBJECT_REQUIRED);
         }
