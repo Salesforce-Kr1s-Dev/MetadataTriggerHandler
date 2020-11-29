@@ -82,6 +82,7 @@ private class MetadataTriggerManagerTest {
 
     @isTest
     private static void testExecuteHandler() {
+        TriggerHandlerDispatcher.triggerContext = TriggerOperation.BEFORE_UPDATE;
         MetadataTriggerManager mdt = new MetadataTriggerManager();
         Test.startTest();
             mdt.executeHandler(HANDLER);
