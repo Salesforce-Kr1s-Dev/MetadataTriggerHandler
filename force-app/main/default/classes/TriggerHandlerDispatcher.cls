@@ -1,3 +1,6 @@
+/**
+ * @description                     Dispatch trigger handler
+ */
 public class TriggerHandlerDispatcher {
     /**
      *  Trigger recursion checker
@@ -8,18 +11,35 @@ public class TriggerHandlerDispatcher {
      */
     private static Set<Id> hasBeenRunAfter = new Set<Id>();
     private static Set<Id> hasBeenRunBefore = new Set<Id>();
+    @TestVisible
+    private static TriggerOperation triggerContext = Trigger.operationType;
 
+    /*********************************************************************
+     * @description                 Main method to run trigger events
+     * 
+     * @param handler               Triggerhandler class
+     * 
+     * @example
+     * TriggerDispatcher.run(new TriggerHandler());
+     */
     public static void run(TriggerHandler handler) {
         if (!Trigger.isExecuting && !Test.isRunningTest()) {
             throw new TriggerHandlerDispatcherException('Trigger handler called outside of Trigger execution');
         }
 
-        List<sObject> applicableSObjectsList = Test.isRunningTest() ? 
-                                                    new List<sObject>() : 
-                                                    recursionChecker(Trigger.isDelete || Trigger.isUndelete ? Trigger.old : Trigger.new);
+        // List<sObject> applicableSObjectsList = recursionChecker(isDeleteOrUndelete() ? Trigger.old : Trigger.new);
         if (!applicableSObjectsList.isEmpty()) {
             runEvents(handler, applicableSObjectsList);
         }
+    }
+
+    /*********************************************************************
+     * @description                 Determine if trigger event is 
+     *                              delete or undelete
+     */
+    private static Boolean isDeleteOrUndelete() {
+        String context = triggerContext.name();
+        return context.contains('DELETE') || context.contains('UNDELETE');
     }
 
     /*********************************************************************
@@ -31,60 +51,86 @@ public class TriggerHandlerDispatcher {
      * @example
      * TriggerDispatcher.recursionChecker(new List<sObject>())
      */
+    @TestVisible
     private static List<sObject> recursionChecker(List<sObject> sObjectsList) {
         List<sObject> applicableSObjectsList = new List<sObject>();
-        for (sObject sobj : sObjectsList) {
-            Id objId = sObj.get('Id') != null ? (Id) sobj.get('Id') : null;
-            if ((Trigger.isBefore && !hasBeenRunBefore.contains(objId))
-                    || (Trigger.isAfter && !hasBeenRunAfter.contains(objId))) {
-                applicableSObjectsList.add(sobj);
-                if (objId != null) {
-                    if (Trigger.isBefore) {
-                        hasBeenRunBefore.add(objId);
-                    } else {
-                        hasBeenRunAfter.add(objId);
-                    }
+        if (sObjectsList != null) {
+            Boolean isBefore = isBefore();
+            for (sObject sobj : sObjectsList) { 
+                Id objId = sObj.get('Id') != null ? (Id) sobj.get('Id') : null;
+                if((isBefore && !hasBeenRunBefore.contains(objId)
+                    || (!isBefore)) && !hasBeenRunAfter.contains(objId)) {
+                    applicableSObjectsList.add(sobj);
+                    addProcessIds(objId, isBefore);
                 }
             }
         }
         return applicableSObjectsList;
     }
 
-    private static void runEvents(TriggerHandler handler, List<sObject> applicableSObjectsList) {
-        // Before trigger logic
-        if (Trigger.isBefore) {
-            if (Trigger.isInsert) {
-                handler.beforeInsert(applicableSObjectsList);
-            }
+    /*********************************************************************
+     * @description                 Determine if trigger event is 
+     *                              before or after
+     */
+    private static Boolean isBefore() {
+        String context = triggerContext.name();
+        return context.contains('BEFORE');
+    }
 
-            if (Trigger.isUpdate) {
-                handler.beforeUpdate(new Map<Id, sObject>(applicableSObjectsList), trigger.oldMap);
-            }
-
-            if (Trigger.isDelete) {
-                handler.beforeDelete(new Map<Id, sObject>(applicableSObjectsList));
+    /*********************************************************************
+     * @description                 Add process records Ids to set
+     *                              to avoid recursion
+     * 
+     * @param objId                 Record Id
+     * @param isBefore              Trigger context
+     * 
+     */
+    private static void addProcessIds(Id objId, Boolean isBefore) {
+        if (objId != null) {
+            if (isBefore) {
+                hasBeenRunBefore.add(objId);
+            } else {
+                hasBeenRunAfter.add(objId);
             }
         }
-         
-        // After trigger logic
-        if (Trigger.isAfter) {
-            if (Trigger.IsInsert) {
+    }
+
+    /*********************************************************************
+     * @description                 Execute method per trigger event 
+     *                              (e.g. before insert, after, update, etc.)
+     * 
+     * @param handler               Triggerhandler class
+     * @param isBefore              Applicable Sobjects
+     */
+    @TestVisible
+    private static void runEvents(TriggerHandler handler, List<sObject> applicableSObjectsList) {
+        switch on triggerContext {
+            when BEFORE_INSERT {
+                handler.beforeInsert(applicableSObjectsList);
+            }
+            when BEFORE_UPDATE {
+                handler.beforeUpdate(new Map<Id, sObject>(applicableSObjectsList), Trigger.oldMap);
+            }
+            when BEFORE_DELETE {
+                handler.beforeDelete(new Map<Id, sObject>(applicableSObjectsList));
+            }
+            when AFTER_INSERT {
                 handler.afterInsert(new Map<Id, sObject>(applicableSObjectsList));
             }
-
-            if (Trigger.isUpdate) {
-                handler.afterUpdate(new Map<Id, sObject>(applicableSObjectsList), trigger.oldMap);
+            when AFTER_UPDATE {
+                handler.afterUpdate(new Map<Id, sObject>(applicableSObjectsList), Trigger.oldMap);
             }
-
-            if (Trigger.isDelete) {
+            when AFTER_DELETE {
                 handler.afterDelete(new Map<Id, sObject>(applicableSObjectsList));
             }
-
-            if (Trigger.isUndelete) {
+            when AFTER_UNDELETE {
                 handler.afterUndelete(new Map<Id, sObject>(applicableSObjectsList));
             }
         }
     }
 
+    /**
+     * @description                     Custom Exception
+     */
     public class TriggerHandlerDispatcherException extends Exception {}
 }
