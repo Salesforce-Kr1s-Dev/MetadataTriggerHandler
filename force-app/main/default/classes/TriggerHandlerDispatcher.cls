@@ -27,7 +27,7 @@ public class TriggerHandlerDispatcher {
             throw new TriggerHandlerDispatcherException('Trigger handler called outside of Trigger execution');
         }
 
-        // List<sObject> applicableSObjectsList = recursionChecker(isDeleteOrUndelete() ? Trigger.old : Trigger.new);
+        List<sObject> applicableSObjectsList = recursionChecker(isDeleteOrUndelete() ? Trigger.old : Trigger.new);
         if (!applicableSObjectsList.isEmpty()) {
             runEvents(handler, applicableSObjectsList);
         }
