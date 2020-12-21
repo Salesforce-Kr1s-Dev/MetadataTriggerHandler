@@ -9,7 +9,6 @@ private class MetadataTriggerManagerTest {
     private static void testRunWithSObjectType() {
         Test.startTest();
             new MetadataTriggerManager()
-                .enableTrigger(true)
                 .setSObjectType('ObjectXXX')
                 .run();
         Test.stopTest();
@@ -21,7 +20,6 @@ private class MetadataTriggerManagerTest {
         Test.startTest();
             try {
                 new MetadataTriggerManager()
-                    .enableTrigger(true)
                     .run();
             } catch(Exception ex) {
                 errMessage = ex.getMessage();
