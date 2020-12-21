@@ -5,7 +5,7 @@
 public class MetadataTriggerManager {
     private final String TRIGGER_OBJECT_REQUIRED = 'Must set trigger sobject';
     private final String SOMETHING_WENT_WRONG = 'Something went wrong. Please contact administrator.';
-    private Boolean isTriggerEnabled = false;
+    private Boolean isTriggerEnabled = true;
     private String sObjectType;
 
     /*********************************************************************
