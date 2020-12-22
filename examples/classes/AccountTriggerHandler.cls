@@ -51,6 +51,7 @@ public class AccountTriggerHandler extends TriggerHandler {
         }
 
         try {
+            TriggerHandler.bypass('ContactTriggerHandler');
             update contacts;
         } catch (Exception ex) {
             throw ex;
