@@ -97,6 +97,7 @@ trigger AccountTrigger on Account (before insert, after update) {
 ### Bypass API
 We still maintain the bypass API which was implemented from the trigger handler class. To bypass a trigger handler, we just need to use the ```bypass``` method in ```TriggerHandler``` class.
 ```java
+// Bypass ContactTriggerHandler
 TriggerHandler.bypass('ContactTriggerHandler');
 ```
 By default, the ```MetadataTriggerManager``` checks if the trigger handler is bypassed and clears it after execution but if you need to check if a handler is bypassed, use the ```isBypassed``` method.
